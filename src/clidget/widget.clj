@@ -1,6 +1,16 @@
 (ns clidget.widget
   (:require [dommy.macros :refer [node]]))
 
+(defmacro defwatcher [name [system-binding & params] & body]
+  (let [atom-keys (mapv keyword (:keys system-binding))
+        system-sym (gensym "system")]
+    `(defn ~name [~system-sym & params#]
+       (add-watches ~system-sym ~atom-keys
+                    (fn [resolved-atoms#]
+                      (let [~system-binding resolved-atoms#
+                            ~(vec params) params#]
+                        ~@body))))))
+
 (defmacro defwidget [name [system-binding & params] & body]
   (let [atom-keys (mapv keyword (:keys system-binding))
         system-sym (gensym "system")
