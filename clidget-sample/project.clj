@@ -1,7 +1,6 @@
 (defproject clidget-sample ""
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "A sample application to demo the Clidget library"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
@@ -21,25 +20,16 @@
 
   :plugins [[jarohen/lein-frodo "0.2.10"]
             [lein-cljsbuild "1.0.0"]
-            [lein-pdo "0.1.1"]
-            [com.keminglabs/cljx "0.3.1"]]
+            [lein-pdo "0.1.1"]]
 
   :frodo/config-resource "clidget-sample-config.edn"
 
-  :source-paths ["src/clojure" "target/generated/clj" "../src"]
+  :source-paths ["src/clojure" "../src"]
 
   :resource-paths ["resources" "target/resources"]
 
-  :cljx {:builds [{:source-paths ["src/cljx"]
-                   :output-path "target/generated/clj"
-                   :rules :clj}
-
-                  {:source-paths ["src/cljx"]
-                   :output-path "target/generated/cljs"
-                   :rules :cljs}]}
-
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src/cljs" "target/generated/cljs" "../src"]
+                       {:source-paths ["src/cljs" "../src"]
                         :compiler {:output-to "target/resources/js/clidget-sample.js"
                                    :output-dir "target/resources/js/"
                                    :optimizations :whitespace
@@ -47,14 +37,6 @@
 
                                    ;; uncomment for source-maps
                                         ; :source-map "target/resources/js/clidget-sample.js.map"
-                                   }}
+                                   }}}}
 
-                       :prod
-                       {:source-paths ["src/cljs" "target/generated/cljs" "../src"]
-                        :compiler {:output-to "target/resources/js/clidget-sample.js"
-                                   :optimizations :advanced
-                                   :pretty-print false
-                                   :externs ["externs/jquery.js"]}}}}
-
-  :aliases {"dev" ["pdo" "cljx" "auto," "cljsbuild" "auto" "dev," "frodo"]
-            "start" ["do" "cljx" "once," "cljsbuild" "once" "prod," "trampoline" "frodo"]})
+  :aliases {"dev" ["pdo" "cljsbuild" "auto" "dev," "frodo"]})
