@@ -1,0 +1,78 @@
+* Clidget
+
+Clidget is an ultra-lightweight ClojureScript state handling utility.
+
+** Getting started
+
+#+BEGIN_SRC clojure
+  [jarohen/clidget "0.1.0-SNAPSHOT"]
+#+END_SRC
+
+Clidget's API is still young (read: pre-alpha) and subject to major
+change.
+
+** The 'back of an envelope' story:
+
+Clidget is under development at the moment - until this README is
+fully written you can check out the example in the =clidget-sample=
+directory - run =lein dev= to start it.
+
+The basic premise is that =clidget.widget/defwidget= watches the
+application state for you, and invites you to re-render the component
+when any of the state changes. The values destructured in the first
+param are just that - values - that you can use to build a DOM
+element:
+
+#+BEGIN_SRC clojure
+  (defwidget counter-widget [{:keys [counter]} events-ch]
+    (node
+     [:div
+      [:h2 "counters is now: " counter]
+      [:p
+       (doto (node [:button.btn "Inc counter"])
+         (d/listen! :click #(a/put! events-ch :inc-counter)))]]))
+#+END_SRC
+
+You are free to use whichever DOM rendering/events handling libraries
+you choose (I'm not going to impose a particular style on you). If
+you're stuck with where to get started with these, I highly recommend
+Dommy and Clojure's own core.async!
+
+To include a widget in the page, call it (it's just a function!), and
+provide it with the *atoms* that it needs to watch:
+
+#+BEGIN_SRC clojure
+  (set! (.-onload js/window)
+        (fn []
+          (let [!counter (atom 0)
+                events-ch (doto (a/chan)
+                            (watch-events! !counter))]
+  
+            (d/replace-contents! (sel1 :#content)
+                                 (node [:h2 {:style {:margin-top "1em"}}
+                                        (counter-widget {:counter !counter} events-ch)])))))
+#+END_SRC
+
+=watch-events!= then needs to watch any events coming out of the
+widget, and update the state accordingly:
+
+#+BEGIN_SRC clojure
+  (defn watch-events! [events-ch !counter]
+    (go-loop []
+      (when-let [event (a/<! events-ch)]
+        (when (= event :inc-counter)
+          (swap! !counter inc))
+        (recur))))
+#+END_SRC
+
+** That's all for now
+
+I'm currently in the process of writing up a more comprehensive
+README, but please let me know in the meantime if you have any
+comments, suggestions or ideas! 
+
+I can be reached through GitHub, or Twitter at [[https://twitter.com/jarohen][@jarohen]].
+
+Thanks!
+
+James
