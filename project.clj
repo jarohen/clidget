@@ -1,5 +1,5 @@
-(defproject jarohen/clidget "0.1.0"
-  :description "A no-fuss ClojureScript state utility"
+(defproject jarohen/clidget "0.1.0-SNAPSHOT"
+  :description "An ultra-lightweight ClojureScript state utility"
   :url "https://github.com/james-henderson/clidget"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
