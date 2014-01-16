@@ -22,7 +22,7 @@
 
 (defwidget diff-widget [{:keys [counter1 counter2]}]
   (node
-   [:p "The difference is: " (js/Math.abs (apply - [counter1 counter2]))]))
+   [:p "The difference is: " (js/Math.abs (- counter1 counter2))]))
 
 (defwatcher console-watcher [{:keys [counter1 counter2]}]
   (println "Counters:" [counter1 counter2]))
