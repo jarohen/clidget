@@ -7,7 +7,7 @@
 (defn- resolve-state [system widget-binding]
   (->> (for [atom-key (:keys widget-binding)]
          [(keyword atom-key) (or (get system (keyword atom-key))
-                                 @(get system (keyword (str "!" (name atom-key)))))])
+                                 (some-> (get system (keyword (str "!" (name atom-key)))) deref))])
        (into {})))
 
 (defn widget-cache-key [system extra-params]
