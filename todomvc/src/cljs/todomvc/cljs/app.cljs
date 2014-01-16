@@ -2,6 +2,7 @@
   (:require [clojure.string :as s]
             [dommy.core :as d]
             [cljs.core.async :as a]
+            [goog.events.KeyCodes :as kc]
             clojure.browser.repl)
   (:require-macros [dommy.macros :refer [node sel1]]
                    [cljs.core.async.macros :refer [go-loop]]
@@ -9,15 +10,37 @@
 
 (enable-console-print!)
 
-(defwidget todo-item-widget [{} {:keys [caption done? id] :as todo} events-ch]
+(defn edit-input [{:keys [caption id]} !editing? events-ch]
+  (let [input (node [:input.form-control {:value caption
+                                          :autofocus true
+                                          :style {:width "15em"}}])]
+    (doto input
+      (d/listen! :keyup
+          (fn [e]
+            (when (= kc/ENTER (.-keyCode e))
+              (a/put! events-ch {:new-caption (d/value input)
+                                 :updated-id id})
+              (reset! !editing? false)
+              (.preventDefault e)))))))
+
+(defwidget todo-item-widget [{:keys [editing? !editing?]
+                              :locals {:!editing? (atom false)}}
+                             {:keys [caption done? id] :as todo}
+                             events-ch]
   (prn "rendering item" id)
-  (node
-   [:tr ^:attrs (cond-> {}
-                  done? (assoc :class "todo-done"))
-    (doto (node [:td.check
-                 [:img {:src "/img/tick.png"}]])
-      (d/listen! :click #(a/put! events-ch {:toggled id})))
-    [:td.caption caption]]))
+  (if-not editing?
+    (node
+     [:tr ^:attrs (cond-> {}
+                    done? (assoc :class "todo-done"))
+      (doto (node [:td.check
+                   [:img {:src "/img/tick.png"}]])
+        (d/listen! :click #(a/put! events-ch {:toggled-id id})))
+      (doto (node [:td.caption caption])
+        (d/listen! :click #(reset! !editing? true)))])
+    (node
+     [:tr
+      [:td.check]
+      [:td.caption (edit-input todo !editing? events-ch)]])))
 
 (defwidget todo-list-widget [{:keys [todos]
                               :as system} events-ch]
@@ -30,8 +53,11 @@
 
 (defn watch-events! [events-ch !todos]
   (go-loop []
-    (when-let [{:keys [toggled]} (a/<! events-ch)]
-      (swap! !todos update-in [toggled :done?] not)
+    (when-let [{:keys [toggled-id new-caption updated-id] :as event} (a/<! events-ch)]
+      (cond
+       toggled-id (swap! !todos update-in [toggled-id :done?] not)
+       updated-id (swap! !todos assoc-in [updated-id :caption] new-caption))
+      
       (recur))))
 
 (set! (.-onload js/window)
