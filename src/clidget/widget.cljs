@@ -34,11 +34,11 @@
 
 (defn add-watches [system widget-binding render-widget-fn]
   (doseq [atom-sym (:keys widget-binding)]
-    (let [atom-key (keyword (str "!" (name atom-sym)))
-          watched-atom (get system atom-key)]
-      (add-watch watched-atom (gensym "clidget")
-                 (fn [_ _ _ new-value]
-                   (render-widget-fn (assoc system (keyword atom-sym) new-value)))))))
+    (let [atom-key (keyword (str "!" (name atom-sym)))]
+      (when-let [watched-atom (get system atom-key)]
+        (add-watch watched-atom (gensym "clidget")
+                   (fn [_ _ _ new-value]
+                     (render-widget-fn (assoc system (keyword atom-sym) new-value))))))))
 
 (defn re-render-widget [!parent-widget-cache system widget-binding extra-params render-widget-fn]
   (let [system-with-locals (-> system (init-locals widget-binding))

@@ -19,10 +19,13 @@
     `(defn ~name [system# & params#]
        (updated-widget (assoc system#
                          :clidget/widget-id '~widget-id)
-                       '~(update-in system-binding [:local] wrap-local-inits)
+                       ~(-> system-binding
+                            (select-keys [:keys :locals])
+                            (update-in [:keys] (fn [keys] `'~keys))
+                            (update-in [:locals] wrap-local-inits))
                        params#
                        (fn [resolved-state#]
-                         (let [~(dissoc system-binding :local) resolved-state#
+                         (let [~(dissoc system-binding :locals) resolved-state#
                                ~(vec params) params#]
                            ~@body))))))
 
