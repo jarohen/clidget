@@ -15,5 +15,9 @@
                 {:width "100%"
                  :height "100%"}]]
               [:td.caption
-               {:font-size "1.3em"}]]]))
+               {:font-size "1.3em"}]
+              [:tr.todo-done
+               [:td.caption
+                {:text-decoration "line-through"
+                 :color "#77c06c"}]]]]))
 

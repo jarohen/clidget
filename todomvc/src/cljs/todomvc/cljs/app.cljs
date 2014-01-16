@@ -10,6 +10,7 @@
 (enable-console-print!)
 
 (defwidget todo-item-widget [{} {:keys [caption done? id] :as todo} events-ch]
+  (prn "rendering item" id)
   (node
    [:tr ^:attrs (cond-> {}
                   done? (assoc :class "todo-done"))
@@ -20,6 +21,7 @@
 
 (defwidget todo-list-widget [{:keys [todos]
                               :as system} events-ch]
+  (prn "rendering list")
   (node
    [:div.todos
     [:table.table.table-striped.table-hover
@@ -40,7 +42,11 @@
                           (watch-events! !todos))]
 
           (defn add-todo! []
-            (swap! !todos assoc (rand-int 10000) {:caption (str "test " (rand-int 10000))}))
+            (let [rand (rand-int 10000)]
+              (swap! !todos assoc rand {:caption (str "test " rand)})))
+
+          (defn drop-random-todo! []
+            (swap! !todos #(dissoc % (rand-nth (keys %)))))
           
           (d/replace-contents! (.-body js/document)
                                (node [:div.container

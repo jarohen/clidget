@@ -1,8 +1,8 @@
 (ns clidget.widget
   (:require [dommy.core :as d]))
 
-(def ^:dynamic ^:private *old-widget-cache* nil)
-(def ^:dynamic ^:private *!widget-cache* nil)
+(def ^:dynamic ^:private *from-widget-cache* nil)
+(def ^:dynamic ^:private *!to-widget-cache* nil)
 
 (defn- resolve-state [system widget-binding]
   (->> (for [atom-key (:keys widget-binding)]
@@ -14,8 +14,12 @@
   (assoc (select-keys system [:clidget/widget-id :clidget/widget-key])
     :params extra-params))
 
-(defn get-cached-widget [widget-cache system extra-params]
-  (get widget-cache (widget-cache-key system extra-params)))
+(defn get-cached-widget [from-widget-cache !to-widget-cache system extra-params]
+  (let [cache-key (widget-cache-key system extra-params)
+        cached-widget (get from-widget-cache cache-key)]
+    (when (and cached-widget !to-widget-cache)
+      (swap! !to-widget-cache assoc cache-key cached-widget)
+      cached-widget)))
 
 (defn cache-widget! [widget !widget-cache system extra-params]
   (when !widget-cache
@@ -36,25 +40,37 @@
                  (fn [_ _ _ new-value]
                    (render-widget-fn (assoc system (keyword atom-sym) new-value)))))))
 
-(defn re-render-widget [!widget-cache system widget-binding extra-params render-widget-fn]
+(defn re-render-widget [!parent-widget-cache system widget-binding extra-params render-widget-fn]
   (let [system-with-locals (-> system (init-locals widget-binding))
         !widget (atom nil)
+        !from-widget-cache (atom {})
         render-widget (fn [system]
-                        (doto (render-widget-fn (-> system
-                                                    (merge (resolve-state system widget-binding))
-                                                    (dissoc :clidget/widget-key :clidget/widget-id)))
-                          (cache-widget! !widget-cache system-with-locals extra-params)
-                          
-                          (#(when-let [current-widget @!widget]
-                              (d/replace! current-widget %)))
-                          
-                          (->> (reset! !widget))))]
+                        (let [!to-widget-cache (atom {})]
+                          (let [widget (binding [*from-widget-cache* @!from-widget-cache
+                                                 *!to-widget-cache* !to-widget-cache]
+                                         (render-widget-fn (-> system
+                                                               (merge (resolve-state system widget-binding))
+                                                               (dissoc :clidget/widget-key
+                                                                       :clidget/widget-id))))]
+
+                            (reset! !from-widget-cache @!to-widget-cache)
+                            
+                            (doto widget
+                              (cache-widget! !parent-widget-cache
+                                             system-with-locals
+                                             extra-params)
+                              
+                              (#(when-let [current-widget @!widget]
+                                  (d/replace! current-widget %)))
+                              
+                              (->> (reset! !widget))))))]
+
     (add-watches system-with-locals widget-binding render-widget)
     (reset! !widget (render-widget system-with-locals))))
 
 (defn updated-widget [system widget-binding extra-params render-widget-fn]
   ;; this fn is called whenever a parent-widget asks us to reload
   
-  (or (get-cached-widget *old-widget-cache* system extra-params)
-      (re-render-widget *!widget-cache* system widget-binding extra-params render-widget-fn)))
+  (or (get-cached-widget *from-widget-cache* *!to-widget-cache* system extra-params)
+      (re-render-widget *!to-widget-cache* system widget-binding extra-params render-widget-fn)))
 
