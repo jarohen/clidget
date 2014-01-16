@@ -1,29 +1,30 @@
-(ns clidget.widget
-  (:require [dommy.macros :refer [node]]))
+(ns clidget.widget)
 
-(defmacro defwatcher [name [system-binding & params] & body]
-  (let [atom-keys (mapv keyword (:keys system-binding))
-        system-sym (gensym "system")]
-    `(defn ~name [~system-sym & params#]
-       (add-watches ~system-sym ~atom-keys
+;; TODO does this fit in with the new model?
+#_(defmacro defwatcher [name [system-binding & params] & body]
+    `(defn ~name [system# & params#]
+       (add-watches system# ~atom-keys
                     (fn [resolved-atoms#]
                       (let [~system-binding resolved-atoms#
                             ~(vec params) params#]
-                        ~@body))))))
+                        ~@body)))))
+
+(defn wrap-local-inits [locals]
+  (->> (for [[local-key init] locals]
+         [local-key `(fn [] ~init)])
+       (into {})))
 
 (defmacro defwidget [name [system-binding & params] & body]
-  (let [atom-keys (mapv keyword (:keys system-binding))
-        system-sym (gensym "system")
-        node-sym (gensym "node")]
-    `(defn ~name [~system-sym & params#]
-       (let [~node-sym (node [:div])]
-         (add-watches ~system-sym ~atom-keys
-                      (fn [resolved-atoms#]
-                        (let [~system-binding resolved-atoms#
-                              ~(vec params) params#
-                              new-content# (do ~@body)]
-                          (dommy.core/replace-contents! ~node-sym new-content#))))
-         ~node-sym))))
+  (let [widget-id (gensym "widget")]
+    `(defn ~name [system# & params#]
+       (updated-widget (assoc system#
+                         :clidget/widget-id '~widget-id)
+                       '~(update-in system-binding [:local] wrap-local-inits)
+                       params#
+                       (fn [resolved-state#]
+                         (let [~(dissoc system-binding :local) resolved-state#
+                               ~(vec params) params#]
+                           ~@body))))))
 
 (comment                                ; tests
   
@@ -51,5 +52,3 @@
   (swap! !counter inc)
 
   )
-
-

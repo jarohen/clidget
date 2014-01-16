@@ -9,10 +9,7 @@
 
 (enable-console-print!)
 
-(defwidget todo-item-widget [{:keys [editing? !editing?]
-                              :local {:!editing? (atom false)}}
-                             {:keys [caption done? id] :as todo}
-                             events-ch]
+(defwidget todo-item-widget [{} {:keys [caption done? id] :as todo} events-ch]
   (node
    [:tr ^:attrs (cond-> {}
                   done? (assoc :class "todo-done"))
@@ -21,22 +18,19 @@
       (d/listen! :click #(a/put! events-ch {:toggled id})))
     [:td.caption caption]]))
 
-(defwidget todo-list-widget [{:keys [todos] :as system} events-ch]
+(defwidget todo-list-widget [{:keys [todos]
+                              :as system} events-ch]
   (node
    [:div.todos
     [:table.table.table-striped.table-hover
-     (for [todo (->> todos
-                     (sort-by :order))]
-       (todo-item-widget {} todo events-ch))]]))
+     (for [[id todo] (->> todos (sort-by key))]
+       (todo-item-widget {} (assoc todo :id id) events-ch))]]))
 
 (defn watch-events! [events-ch !todos]
   (go-loop []
     (when-let [{:keys [toggled]} (a/<! events-ch)]
       (swap! !todos update-in [toggled :done?] not)
       (recur))))
-
-(defwatcher todos-watcher [{:keys [todos]}]
-  (prn todos))
 
 (set! (.-onload js/window)
       (fn []
@@ -45,7 +39,9 @@
               events-ch (doto (a/chan)
                           (watch-events! !todos))]
 
-          (todos-watcher {:!todos !todos})
+          (defn add-todo! []
+            (swap! !todos assoc (rand-int 10000) {:caption (str "test " (rand-int 10000))}))
+          
           (d/replace-contents! (.-body js/document)
                                (node [:div.container
                                       [:h3 "Things to do:"]
@@ -53,5 +49,3 @@
                                        [:div.col-md-6
                                         [:div {:style {:margin-top "2em"}}
                                          (todo-list-widget {:!todos !todos} events-ch)]]]])))))
-
-
