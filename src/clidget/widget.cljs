@@ -1,5 +1,4 @@
-(ns clidget.widget
-  (:require [dommy.core :as d]))
+(ns clidget.widget)
 
 (def ^:dynamic ^:private *from-widget-cache* nil)
 (def ^:dynamic ^:private *!to-widget-cache* nil)
@@ -61,7 +60,7 @@
                                              extra-params)
                               
                               (#(when-let [current-widget @!widget]
-                                  (d/replace! current-widget %)))
+                                  (.. current-widget -parentNode (replaceChild % current-widget))))
                               
                               (->> (reset! !widget))))))]
 
@@ -73,4 +72,3 @@
   
   (or (get-cached-widget *from-widget-cache* *!to-widget-cache* system extra-params)
       (re-render-widget *!to-widget-cache* system widget-binding extra-params render-widget-fn)))
-
