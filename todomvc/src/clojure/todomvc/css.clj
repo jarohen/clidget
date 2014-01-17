@@ -19,5 +19,7 @@
               [:tr.todo-done
                [:td.caption
                 {:text-decoration "line-through"
-                 :color "#77c06c"}]]]]))
+                 :color "#77c06c"}]]
+              [:input
+               {:width "15em"}]]]))
 
