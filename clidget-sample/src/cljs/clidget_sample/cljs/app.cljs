@@ -4,7 +4,7 @@
             [dommy.core :as d]
             clojure.browser.repl)
   (:require-macros [dommy.macros :refer [node sel1]]
-                   [clidget.widget :refer [defwidget defwatcher]]
+                   [clidget.widget :refer [defwidget]]
                    [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)
@@ -24,9 +24,6 @@
   (node
    [:p "The difference is: " (js/Math.abs (- counter1 counter2))]))
 
-(defwatcher console-watcher [{:keys [counter1 counter2]}]
-  (println "Counters:" [counter1 counter2]))
-
 (defn watch-events! [events-ch !counter1 !counter2]
   (go-loop []
     (when-let [event (a/<! events-ch)]
@@ -42,17 +39,14 @@
               events-ch (doto (a/chan)
                           (watch-events! !counter1 !counter2))]
 
-          (console-watcher {:counter1 !counter1
-                            :counter2 !counter2})
-          
           (d/replace-contents! (sel1 :#content)
                                (node [:div.container
                                       [:h2 {:style {:margin-top "1em"}}
-                                       (counter-widget {:counter1 !counter1
-                                                        :counter2 !counter2}
+                                       (counter-widget {:!counter1 !counter1
+                                                        :!counter2 !counter2}
                                                        events-ch)]
                                       [:div {:style {:margin-top "2em"}}
-                                       (diff-widget {:counter1 !counter1
-                                                        :counter2 !counter2})]])))))
+                                       (diff-widget {:!counter1 !counter1
+                                                     :!counter2 !counter2})]])))))
 
 
