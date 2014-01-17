@@ -42,17 +42,17 @@
 (defn re-render-widget [!parent-widget-cache system widget-binding extra-params render-widget-fn]
   (let [system-with-locals (-> system (init-locals widget-binding))
         !widget (atom nil)
-        !from-widget-cache (atom (atom {}))
+        !!from-widget-cache (atom (atom {}))
         render-widget (fn [system]
                         (let [!to-widget-cache (atom {})]
-                          (let [widget (binding [*from-widget-cache* @@!from-widget-cache
+                          (let [widget (binding [*from-widget-cache* @@!!from-widget-cache
                                                  *!to-widget-cache* !to-widget-cache]
                                          (render-widget-fn (-> system
                                                                (merge (resolve-state system widget-binding))
                                                                (dissoc :clidget/widget-key
                                                                        :clidget/widget-id))))]
 
-                            (reset! !from-widget-cache !to-widget-cache)
+                            (reset! !!from-widget-cache !to-widget-cache)
                             
                             (doto widget
                               (cache-widget! !parent-widget-cache
