@@ -26,7 +26,7 @@
                               :locals {:!editing? (atom false)}}
                              {:keys [caption done? id] :as todo}
                              events-ch]
-  (prn "rendering item" id)
+  (prn "rendering item" id editing?)
   (if-not editing?
     (node
      [:tr ^:attrs (cond-> {}
