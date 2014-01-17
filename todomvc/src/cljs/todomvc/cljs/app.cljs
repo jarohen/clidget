@@ -4,7 +4,7 @@
             [goog.events.KeyCodes :as kc])
   (:require-macros [dommy.macros :refer [node sel1]]
                    [cljs.core.async.macros :refer [go-loop]]
-                   [clidget.widget :refer [defwidget defwatcher]]))
+                   [clidget.widget :refer [defwidget]]))
 
 (enable-console-print!)
 
@@ -16,13 +16,10 @@
         (.preventDefault e)))))
 
 (defn edit-input [{:keys [caption id]} !editing? events-ch]
-  (let [input (node [:input.form-control {:value caption
-                                          :autofocus true
-                                          :style {:width "15em"}}])]
+  (let [input (node [:input.form-control {:value caption, :autofocus true}])]
     (doto input
       (on-enter (fn [e]
-                  (a/put! events-ch {:new-caption (d/value input)
-                                     :updated-id id})
+                  (a/put! events-ch {:new-caption (d/value input), :updated-id id})
                   (reset! !editing? false))))))
 
 (defwidget todo-item-widget [{:keys [editing? !editing?]
@@ -37,20 +34,18 @@
       (doto (node [:td.check
                    [:img {:src "/img/tick.png"}]])
         (d/listen! :click #(a/put! events-ch {:toggled-id id})))
+      
       (doto (node [:td.caption caption])
         (d/listen! :click #(reset! !editing? true)))])
     (node
-     [:tr
-      [:td.check]
+     [:tr [:td]
       [:td.caption (edit-input todo !editing? events-ch)]])))
 
 (defwidget new-todo-widget [{} events-ch]
   (node
-   [:tr
-    [:td.check]
+   [:tr [:td]
     [:td
-     (let [input (node [:input.form-control {:style {:width "15em"}
-                                             :placeholder "new todo"}])]
+     (let [input (node [:input.form-control {:placeholder "new todo"}])]
        (doto input
          (on-enter (fn [e]
                      (a/put! events-ch {:new-todo (d/value input)})
@@ -89,25 +84,21 @@
        updated-id (swap! !todos assoc-in [updated-id :caption] new-caption)
        new-todo (swap! !todos #(assoc %
                                  ((fnil inc 0) (apply max (keys %)))
-                                 {:caption new-todo
-                                  :done? false}))
+                                 {:caption new-todo, :done? false}))
        clear-completed? (swap! !todos #(into {} (remove (comp :done? val) %))))
       
       (recur))))
 
 (set! (.-onload js/window)
       (fn []
-        (let [!todos (atom {0 {:caption "test"}
-                            1 {:caption "test 2"}})
+        (let [!todos (atom {0 {:caption "test todo"}})
               events-ch (doto (a/chan)
                           (watch-events! !todos))]
 
           (d/replace-contents! (.-body js/document)
                                (node [:div.container
                                       [:h3 "Things to do:"]
-                                      [:div.row
-                                       [:div.col-md-6
-                                        [:div {:style {:margin-top "2em"}}
-                                         (todo-list-widget {:!todos !todos} events-ch)]
-                                        [:div {:style {:margin-top "2em"}}
-                                         (todo-stats-widget {:!todos !todos} events-ch)]]]])))))
+                                      [:div {:style {:margin-top "2em"}}
+                                       (todo-list-widget {:!todos !todos} events-ch)]
+                                      [:div {:style {:margin-top "2em"}}
+                                       (todo-stats-widget {:!todos !todos} events-ch)]])))))
