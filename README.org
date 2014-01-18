@@ -77,7 +77,7 @@ element:
 You are free to use whichever DOM rendering/events handling libraries
 you choose (I'm not going to impose a particular style on you). If
 you're stuck with where to get started with these, I highly recommend
-Dommy and Clojure's own core.async!
+[[https://github.com/Prismatic/dommy][Dommy]] and Clojure's own [[https://github.com/clojure/core.async][core.async]]!
 
 To include a widget in the page, call it (it's just a function!), and
 provide it with the *atoms* that it needs to watch:
