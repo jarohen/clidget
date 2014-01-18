@@ -2,9 +2,9 @@
   (:require [dommy.core :as d]
             [cljs.core.async :as a]
             [clojure.string :as s]
-            [goog.events.KeyCodes :as kc])
-  (:require-macros [dommy.macros :refer [node sel1]]
-                   [clidget.widget :refer [defwidget]]))
+            [goog.events.KeyCodes :as kc]
+            [clidget.widget :refer [defwidget] :include-macros true])
+  (:require-macros [dommy.macros :refer [node sel1]]))
 
 (defwidget toggle-all-widget [{:keys [todos]} events-ch]
   (let [all-done? (every? (comp :done? val) todos)]
