@@ -15,7 +15,8 @@ change.
 
 Clidget is under development at the moment - until this README is
 fully written you can check out the example in the =clidget-sample=
-directory - run =lein dev= to start it.
+directory, or the TodoMVC example in the =todomvc= directory - run
+=lein dev= to start them.
 
 The basic premise is that =clidget.widget/defwidget= watches the
 application state for you, and invites you to re-render the component
@@ -27,7 +28,7 @@ element:
   (defwidget counter-widget [{:keys [counter]} events-ch]
     (node
      [:div
-      [:h2 "counters is now: " counter]
+      [:h2 "counter is now: " counter]
       [:p
        (doto (node [:button.btn "Inc counter"])
          (d/listen! :click #(a/put! events-ch :inc-counter)))]]))
@@ -50,7 +51,7 @@ provide it with the *atoms* that it needs to watch:
   
             (d/replace-contents! (sel1 :#content)
                                  (node [:h2 {:style {:margin-top "1em"}}
-                                        (counter-widget {:counter !counter} events-ch)])))))
+                                        (counter-widget {:!counter !counter} events-ch)])))))
 #+END_SRC
 
 =watch-events!= then needs to watch any events coming out of the
