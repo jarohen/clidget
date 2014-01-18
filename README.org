@@ -8,7 +8,7 @@ UIs through small, composable 'widgets'.*
 Add the following to your =project.clj=
 
 #+BEGIN_SRC clojure
-  [jarohen/clidget "0.1.0-SNAPSHOT"]
+  [jarohen/clidget "0.1.0"]
 #+END_SRC
 
 and the following to your CLJS =:require=:
