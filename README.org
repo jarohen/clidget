@@ -114,14 +114,24 @@ events coming out of the widget, and update the state accordingly:
         (recur))))
 #+END_SRC
 
-** That's all for now
+** Diving into 'defwidget'
 
-I'm currently in the process of writing up a more comprehensive
-README, but please let me know in the meantime if you have any
-comments, suggestions or ideas! 
 
-I can be reached through GitHub, or Twitter at [[https://twitter.com/jarohen][@jarohen]].
+
+** Feedback/suggestions/ideas/bug reports/PRs etc
+
+If you've made it this far through the README (congratulations!), I'd
+really appreciate your feedback and suggestions.
+
+I can be reached in the traditional GitHub ways, or on Twitter at
+[[https://twitter.com/jarohen][@jarohen]].
 
 Thanks!
 
 James
+
+** License
+
+Copyright © 2014 James Henderson
+
+Distributed under the Eclipse Public License, the same as Clojure
