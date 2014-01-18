@@ -2,9 +2,9 @@
   (:require [clojure.string :as s]
             [cljs.core.async :as a]
             [dommy.core :as d]
-            clojure.browser.repl)
+            clojure.browser.repl
+            [clidget.widget :refer [defwidget] :include-macros true])
   (:require-macros [dommy.macros :refer [node sel1]]
-                   [clidget.widget :refer [defwidget]]
                    [cljs.core.async.macros :refer [go-loop]]))
 
 (enable-console-print!)

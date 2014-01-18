@@ -16,7 +16,9 @@
                  [org.clojure/clojurescript "0.0-2138"]
                  [org.clojure/tools.reader "0.8.1"]
 
-                 [jarohen/frodo-core "0.2.10"]]
+                 [jarohen/frodo-core "0.2.10"]
+
+                 [jarohen/clidget "0.1.0-SNAPSHOT"]]
 
   :plugins [[jarohen/lein-frodo "0.2.10"]
             [lein-cljsbuild "1.0.0"]
@@ -24,12 +26,12 @@
 
   :frodo/config-resource "clidget-sample-config.edn"
 
-  :source-paths ["src/clojure" "../src"]
+  :source-paths ["src/clojure"]
 
   :resource-paths ["resources" "target/resources"]
 
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src/cljs" "../src"]
+                       {:source-paths ["src/cljs"]
                         :compiler {:output-to "target/resources/js/clidget-sample.js"
                                    :output-dir "target/resources/js/"
                                    :optimizations :whitespace
