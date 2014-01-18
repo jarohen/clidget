@@ -1,15 +1,55 @@
 * Clidget
 
-Clidget is an ultra-lightweight ClojureScript state handling utility.
+*Clidget is a lightweight CLJS state utility that allows you to build
+UIs through small, composable 'widgets'.*
+
+Clidget's API is still young (read: pre-alpha) and subject to change.
 
 ** Getting started
+
+Add the following to your =project.clj=
 
 #+BEGIN_SRC clojure
   [jarohen/clidget "0.1.0-SNAPSHOT"]
 #+END_SRC
 
-Clidget's API is still young (read: pre-alpha) and subject to major
-change.
+and the following to your CLJS =:require=:
+
+#+BEGIN_SRC clojure
+  (:require [clidget.widget :refer [defwidget] :include-macros true])
+#+END_SRC
+
+** Clidget's Design Aims:
+
+When writing Clidget, I had the following aims:
+
+- *Do one thing, and do it well* - Clidget does not aim to be an 'all
+  batteries included' framework. In particular, it leaves you free to
+  choose how to render DOM elements (do you prefer Hiccup-like
+  libraries? Mustache templating?) and how to handle events. 
+
+  Clidget is good at knowing when to re-render widgets, the rest is up
+  to you.
+- *No Magic* - 'magic' is great when it's a small example ('wow, that's
+  magic! How did they do that so concisely?!') but not so great when
+  the magic stops working, you stray off the beaten track, or
+  encounter an incomprehensible error.
+
+  Clidget uses vanilla Clojure data structures and functions, and is
+  mostly based around standard Clojure watches on atoms. It expects
+  you to return standard JS DOM elements (which you can pass to other
+  JS libraries as-they-are)
+  
+- *Immutability where possible* - it goes without saying that
+  immutable values are far easier to reason about and test. Even
+  though the DOM is inherently mutable, the widgets that you write are
+  functions that take in values and return a value (and can be tested
+  as such).
+
+- *Preserve Clojure's composability* - Clojure is great at composing
+  small libraries together (I believe it's one of Clojure's core
+  strengths) so let's ensure that you can use other libraries easily
+  (even other JS libraries).
 
 ** The 'back of an envelope' story:
 
@@ -49,7 +89,7 @@ provide it with the *atoms* that it needs to watch:
                 events-ch (doto (a/chan)
                             (watch-events! !counter))]
   
-            (d/replace-contents! (sel1 :#content)
+            (d/replace-contents! (.-body js/document)
                                  (node [:h2 {:style {:margin-top "1em"}}
                                         (counter-widget {:!counter !counter} events-ch)])))))
 #+END_SRC
