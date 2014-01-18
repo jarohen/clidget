@@ -57,7 +57,8 @@ If you want to dive straight into examples, there are two in the repo:
 a simple counter (in the =clidget-sample= directory), and a [[http://todomvc.com/][TodoMVC]]
 example in the =todomvc= directory.
 
-You can run the examples by cloning the repo, and running =lein dev=.
+You can run the examples by cloning the repo, cd'ing, and running
+=lein dev=.
 
 ** The 'back of an envelope' story:
 
@@ -103,7 +104,8 @@ atom. (If you don't put an exclamation mark in, Clidget will treat it
 as a value - more on this later.)
 
 To complete the example, =watch-events!= then needs to watch any
-events coming out of the widget, and update the state accordingly:
+events coming out of the widget, and update the state accordingly (no
+Clidget here):
 
 #+BEGIN_SRC clojure
   (defn watch-events! [events-ch !counter]
@@ -116,6 +118,170 @@ events coming out of the widget, and update the state accordingly:
 
 ** Diving into 'defwidget'
 
+*** Parameters
+
+The underlying format of =defwidget= is:
+
+#+BEGIN_SRC clojure
+  (defwidget widget-name [state-declaration & other-param-names]
+    widget-body)
+  
+  ;; called with:
+  (widget-name system-state param1 param2)
+#+END_SRC
+
+=defwidget= treats its first parameter specially - this is the
+parameter where the widget declares the parts of the state map that
+it's interested in. The 'other parameters' are passed through as-is by
+Clidget; feel free to use them for other values that the widget needs.
+
+The majority of the =defwidget= macro is concerned with binding the
+atoms in the =system-state= map to the =state-declaration=; this
+section aims to explain how the binding works.
+
+Within the =state-declaration= map, Clidget particularly looks for the
+=:keys= and =:locals= keys (the =:locals= key will be covered later).
+
+Think of the =:keys= entry the same as normal de-structuring - we're
+essentially de-structuring the =system-state= map - but with extra
+state-watching functionality. For each symbol (let's say 'counter'),
+Clidget will:
+
+- look up the value in the system-state map. If it finds a ':counter'
+  entry, it will bind the 'counter' variable to the value
+  provided. /This is mostly to be used for testing./
+- If there's no value, it'll look up an atom in the system-state map,
+  *prefixed with an exclamation mark* (e.g. for 'counter', it will
+  look up ':!counter'). If it finds an atom, it will assume that the
+  appearance of the widget depends on the current value of the
+  atom. The widget will be re-evaluated every time the atom changes
+  value, and the variable will be bound to the new value of the atom.
+- If it can't find either a value under ':counter', or an atom under
+  ':!counter', then 'counter' will be nil in the widget body.
+
+Using the example above, we can now see how the 'counter' is bound:
+
+#+BEGIN_SRC clojure
+  (defwidget counter-widget [{:keys [counter]} events-ch]
+    (node
+     [:div
+      [:h2 "counter is now: " counter]
+      [:p
+       (doto (node [:button.btn "Inc counter"])
+         (d/listen! :click #(a/put! events-ch :inc-counter)))]]))
+  
+  ;; using the counter-widget:
+  (let [!counter (atom 0)
+        events-ch (a/chan)]
+    
+    (d/replace-contents! (.-body js/document)
+                         (counter-widget {:!counter !counter} events-ch)))
+#+END_SRC
+
+For a complete example, have a look at the [[https://github.com/james-henderson/clidget/tree/master/clidget-sample]['clidget-sample']] demo
+application.
+
+*** Testing widgets
+
+In the above snippet, =counter-widget= is just a function, and so it
+can be called with test parameters, like any other CLJS function.
+
+Because =defwidget= looks for values in the system-state map before
+looking for atoms, we can pass a value for the counter, and see what
+the DOM element would look like:
+
+#+BEGIN_SRC clojure
+  (defwidget counter-widget [{:keys [counter]} events-ch]
+    (node
+     ... as before ...))
+  
+  ;; In Chrome, this outputs a DOM tree in the developer console.
+  (js/console.log (counter-widget {:counter 4} nil))
+#+END_SRC
+
+We can also mock an events channel to test the events, if need be
+
+*** Widget local state
+
+Widgets occasionally need to keep local state - for example, a widget
+that can be edited in-place needs to store the state of whether it is
+currently being edited or viewed. 
+
+Clidget handles this using a 'locals' map, again declared in the first
+parameter to =defwidget=. When specifying a local atom, you also
+specify an initial value, as follows:
+
+#+BEGIN_SRC clojure
+  (defwidget todo-item-widget [{:keys [editing? !editing?]
+                                :locals {:!editing? (atom false)}}
+                               ...]
+    (node
+     [:li 
+      (if editing?
+        (doto (node (node-when-viewing ...))
+          (d/listen! :dblclick #(reset! !editing? true)))
+        
+        (node (node-when-editing ...)))]))
+#+END_SRC
+
+Here we declare =!editing?= as a local atom, with a default value of
+false. We specify both =editing?= and =!editing?= in the =:keys= map,
+so that we have access to both =editing?=, the current value of the
+atom (to check which version of the widget we display) and
+=!editing?=, the atom itself (in order to set the 'am-I-editing' state
+in the dblclick listener).
+
+When =!editing?= is reset to true, Clidget will re-render the widget,
+but this time it will render the =(node-when-editing ...)= node.
+
+
+*** Sub-widget keys
+
+Clidget uses the extra parameters (i.e. everything after the first
+parameter) that you provide to a widget to differentiate between
+sub-widgets. This works out fine in most cases - for example, if you
+have a widget that contains a list of widgets, chances are you'll
+provide a widget-unique ID as an extra parameter to the sub-widget, as
+follows:
+
+#+BEGIN_SRC clojure
+  (defwidget todo-item-widget [{:keys [...]}
+                               {:keys [caption id] :as todo}]
+    (node
+     [:li caption]))
+  
+  (defwidget todo-list-widget [{:keys [todos]}]
+    (node
+     [:ul
+      (for [{:keys [id] :as todo} todos]
+        (todo-item-widget {} todo))]))
+#+END_SRC
+
+The 'id' here in the todo map is enough to differentiate between
+different todo items, so Clidget will know when to re-render each
+individual item.
+
+In the rare case that the combination of extra parameters may not be
+unique amongst sub-widgets, you can provide a unique (but consistent,
+for any given sub-widget) =:clidget/widget-key= key in the state map,
+as shown in the following (very contrived) example:
+
+#+BEGIN_SRC clojure
+  (defwidget child-widget [{:keys [...]} elem]
+    (node
+     [:li ...]))
+  
+  (defwidget parent-widget [{:keys [coll]}]
+    (node
+     [:ul
+      (for [[index elem] (map vector (range) coll)]
+        (child-widget {:clidget/widget-key index} elem))]))
+#+END_SRC
+
+Here, we are using the index of the 'element' in the 'collection' as a
+disambiguator.
+
+As mentioned above, this really should be a rare occurrence!
 
 
 ** Feedback/suggestions/ideas/bug reports/PRs etc
