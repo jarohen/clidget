@@ -3,8 +3,6 @@
 *Clidget is a lightweight CLJS state utility that allows you to build
 UIs through small, composable 'widgets'.*
 
-Clidget's API is still young (read: pre-alpha) and subject to change.
-
 ** Getting started
 
 Add the following to your =project.clj=
@@ -19,7 +17,7 @@ and the following to your CLJS =:require=:
   (:require [clidget.widget :refer [defwidget] :include-macros true])
 #+END_SRC
 
-** Clidget's Design Aims:
+** Clidget's Rationale:
 
 When writing Clidget, I had the following aims:
 
@@ -30,6 +28,7 @@ When writing Clidget, I had the following aims:
 
   Clidget is good at knowing when to re-render widgets, the rest is up
   to you.
+
 - *No Magic* - 'magic' is great when it's a small example ('wow, that's
   magic! How did they do that so concisely?!') but not so great when
   the magic stops working, you stray off the beaten track, or
@@ -41,17 +40,18 @@ When writing Clidget, I had the following aims:
   JS libraries as-they-are)
   
 - *Immutability where possible* - it goes without saying that
-  immutable values are far easier to reason about and test. Even
-  though the DOM is inherently mutable, the widgets that you write are
-  functions that take in values and return a value (and can be tested
-  as such).
+  immutable values are far easier to reason about and test. 
+
+  Even though the DOM is inherently mutable, the widgets that you
+  write are functions that take in values and return a value (and can
+  be tested as such).
 
 - *Preserve Clojure's composability* - Clojure is great at composing
   small libraries together (I believe it's one of Clojure's core
   strengths) so let's ensure that you can use other libraries easily
   (even other JS libraries).
 
-** Clidget examples
+** Example Clidget applications
 
 If you want to dive straight into examples, there are two in the repo:
 a simple counter (in the =clidget-sample= directory), and a [[http://todomvc.com/][TodoMVC]]
