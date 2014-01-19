@@ -1,0 +1,71 @@
+* Comparison between Clidget and Om/Cloact/React
+
+I've been asked on numerous occasions now, understandably so, to
+provide a comparison between Clidget and
+Om/Cloact/React.
+
+For a quick start into Clidget, and an explanation of its rationale,
+please see [[https://github.com/james-henderson/clidget/][the README]].
+
+For a fairly sizeable example Clidget application, please see the
+[[https://github.com/james-henderson/clidget/tree/master/todomvc][TodoMVC]] implementation in the Clidget repo.
+
+Please feel free to send me issues/PRs if any of the comparisons here
+are wrong or misleading - I don't pretend to be an expert in Om,
+Cloact or React so please accept my apologies in advance for any
+misunderstandings on my part.
+
+** Differences in scope
+
+Om and Cloact both provide a solution for updating state, handling
+events, rendering DOM elements and updating the DOM. 
+
+Clidget, on the other hand, concentrates solely on when to update the
+DOM. It relies on Clojure's vanilla atoms to update the state, but
+does not make any assertions around how users render DOM elements or
+handle events - that choice is yours.
+
+** Use of real DOM elements
+
+Om and Cloact are both based on a virtual DOM, on which they perform
+diffs to decide how much of the DOM to re-render on any state change.
+
+Clidget widgets return real DOM elements when they are asked to
+re-render. This probably does have an performance cost relative to
+virtual DOMs, but has the advantage that you can pass these elements
+through other JavaScript frameworks before returning them, rather than
+having to intercept React's lifecycle at a later time.
+
+Clidget does also cache DOM elements at the widget level - so the
+granularity at which DOM elements are re-created are, to a certain
+extent, controllable by the user.
+
+** Concepts introduced
+
+Clidget does not introduce any concepts new to any Clojure
+developers. Fundamentally, *a widget is a function that accepts values
+and returns a DOM element*. The only difference is that, rather than
+passing those values in, you pass in atoms, and it can be assumed that
+Clidget then behaves similarly to Clojure core's =add-watch= function.
+
+This fundamental simplicity should make it a lot easier to develop
+applications, and debug them when they go wrong. One of the core aims
+in the Clidget [[https://github.com/james-henderson/clidget/blob/master/README.org#clidgets-rationale][Rationale]] is to avoid 'magic' at all costs. 
+
+As a result, I believe Clidget should be a lot easier to get up and
+running, and applications easier to understand and maintain - although
+I am obviously biased; try it for yourself!
+
+** Performance
+
+Clidget will be slower than Om and Cloact, although (even now) not to
+the point of being unusable for the majority of web applications (I
+hope!).
+
+It's always been my aim, with Clidget, that the performance is
+sufficient (but without adding complexity for the last few ms), and
+that the simplicity and transparency offered makes up for any
+performance differences.
+
+I'm currently working on making the performance better, but wanted to
+get an initial release out of the door to get some early feedback.
