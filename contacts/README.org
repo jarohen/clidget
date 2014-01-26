@@ -4,6 +4,11 @@ I've noticed that both Om and Reagent (formerly Reagent) have recently
 published Contacts Manager tutorials, and thought that it'd be a good
 idea to provide a Clidget example as a comparison - so here it is!
 
+For an introduction to Clidget and its rationale, please see the [[https://github.com/james-henderson/clidget/][README]].
+
+For a comparison to Om, Reagent and React, including the reasons why I
+wrote Clidget in the first place, please see [[https://github.com/james-henderson/clidget/blob/master/comparison.org][here]].
+
 ** Getting set up:
 
 I tend to use my 'SPLAT' Lein template for ClojureScript
@@ -26,7 +31,7 @@ You'll then need to include Clidget as a dependency in your
 
 The Om tutorial includes a few functions for parsing and formatting
 names which I have included verbatim - these are in
-=src/cljx/contacts/cljx/formatter.cljx=. 
+[[https://github.com/james-henderson/clidget/blob/master/contacts/src/cljx/contacts/cljx/formatter.cljx][src/cljx/contacts/cljx/formatter.cljx]]. 
 
 While we're here, [[https://github.com/lynaghk/cljx][CLJX]] is a great library for writing code that's
 portable between Clojure and ClojureScript; I'd highly recommend it.
@@ -36,8 +41,8 @@ and know that it works in ClojureScript - which can be really useful!
 
 ** Requires
 
-First, head to =src/cljs/contacts/cljs/app.cljs= (if you're using SPLAT), and
-require a few dependencies:
+First, head to [[https://github.com/james-henderson/clidget/blob/master/contacts/src/cljs/contacts/cljs/app.cljs][src/cljs/contacts/cljs/app.cljs]] (if you're using
+SPLAT), and require a few dependencies:
 
 #+BEGIN_SRC clojure
   (ns contacts.cljs.app
