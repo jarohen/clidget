@@ -1,8 +1,8 @@
-* Comparison between Clidget and Om/Cloact/React
+* Comparison between Clidget and Om/Reagent/React
 
 I've been asked on numerous occasions now, understandably so, to
 provide a comparison between Clidget and
-Om/Cloact/React.
+Om/Reagent/React.
 
 For a quick start into Clidget, and an explanation of its rationale,
 please see [[https://github.com/james-henderson/clidget/][the README]].
@@ -12,12 +12,12 @@ For a fairly sizeable example Clidget application, please see the
 
 Please feel free to send me issues/PRs if any of the comparisons here
 are wrong or misleading - I don't pretend to be an expert in Om,
-Cloact or React so please accept my apologies in advance for any
+Reagent or React so please accept my apologies in advance for any
 misunderstandings on my part.
 
 ** Differences in scope
 
-Om and Cloact both provide a solution for updating state, handling
+Om and Reagent both provide a solution for updating state, handling
 events, rendering DOM elements and updating the DOM. 
 
 Clidget, on the other hand, concentrates solely on when to update the
@@ -27,7 +27,7 @@ handle events - that choice is yours.
 
 ** Use of real DOM elements
 
-Om and Cloact are both based on a virtual DOM, on which they perform
+Om and Reagent are both based on a virtual DOM, on which they perform
 diffs to decide how much of the DOM to re-render on any state change.
 
 Clidget widgets return real DOM elements when they are asked to
@@ -58,7 +58,7 @@ I am obviously biased; try it for yourself!
 
 ** Performance
 
-Clidget will be slower than Om and Cloact, although (even now) not to
+Clidget will be slower than Om and Reagent, although (even now) not to
 the point of being unusable for the majority of web applications (I
 hope!).
 

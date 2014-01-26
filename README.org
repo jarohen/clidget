@@ -51,7 +51,7 @@ When writing Clidget, I had the following aims:
   strengths) so let's ensure that you can use other libraries easily
   (even other JS libraries).
 
-If you're looking for a comparison with Om and Cloact, it can be found
+If you're looking for a comparison with Om and Reagent, it can be found
 [[https://github.com/james-henderson/clidget/blob/master/comparison.org][here]].
 
 ** Example Clidget applications
