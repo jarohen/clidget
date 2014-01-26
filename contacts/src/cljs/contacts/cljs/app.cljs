@@ -1,11 +1,9 @@
 (ns contacts.cljs.app
-  (:require [clojure.string :as s]            
-            [clidget.widget :refer [defwidget] :include-macros true]
+  (:require [clidget.widget :refer [defwidget] :include-macros true]
             [cljs.core.async :as a]
             [contacts.cljx.formatter :as f]
             [dommy.core :as d]
-            [goog.events.KeyCodes :as kc]
-            clojure.browser.repl)
+            [goog.events.KeyCodes :as kc])
   (:require-macros [dommy.macros :refer [node sel1]]
                    [cljs.core.async.macros :refer [go-loop]]))
 
