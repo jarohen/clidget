@@ -55,8 +55,8 @@ SPLAT), and require a few dependencies:
                      [cljs.core.async.macros :refer [go-loop]]))
 #+END_SRC
 
-I use [[https://github.com/Prismatic/dommy][Dommy]] for rendering HTML, feel free to replace this with your
-library of choice!
+I use [[https://github.com/Prismatic/dommy][Dommy]] for rendering HTML, but Clidget doesn't mind what you
+choose - feel free to replace this with your library of choice!
 
 ** State of the application
 
@@ -171,9 +171,12 @@ make a sound?/
 
 That aside, we should probably handle the generated events!
 
-We do this completely outside of Clidget in the usual core.async
-manner - using a function that accepts the channel and the state atom,
-listens to the channel, and updates the state accordingly:
+We do this completely outside of Clidget - Clidget doesn't force any
+opinions on you as to how to do event handling!
+
+To handle the events, we can implement a function that accepts the
+channel and the state atom, listens to the channel, and updates the
+state accordingly:
 
 #+BEGIN_SRC clojure
   (defn handle-events! [event-ch !contacts]
