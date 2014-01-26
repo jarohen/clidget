@@ -1,6 +1,6 @@
 * Clidget Contact Manager Tutorial
 
-I've noticed that both Om and Reagent (formerly Reagent) have recently
+I've noticed that both Om and Reagent (formerly Cloact) have recently
 published Contacts Manager tutorials, and thought that it'd be a good
 idea to provide a Clidget example as a comparison - so here it is!
 
