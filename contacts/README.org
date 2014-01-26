@@ -27,6 +27,14 @@ You'll then need to include Clidget as a dependency in your
   [jarohen/clidget "0.1.0"]
 #+END_SRC
 
+To jump all the way to a working example, you can:
+
+#+BEGIN_SRC sh
+git clone https://github.com/james-henderson/clidget.git
+cd clidget/contacts
+lein dev
+#+END_SRC
+
 ** Parsing/formatting names
 
 The Om tutorial includes a few functions for parsing and formatting
