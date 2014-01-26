@@ -112,38 +112,40 @@ delegating to the individual contact widget).
       [:h1 "Contact List:"]
       [:ul
        (for [contact (sort-by :last contacts)]
-         (contact-widget {:contact contact} event-ch))]]))
+         (contact-widget {} contact event-ch))]]))
 #+END_SRC
 
-When we call any widget (they're just functions!), we can
-then pass the first parameter a map, as follows:
+When we call any widget (they're just functions!), we can then pass
+the first parameter as a map of *atoms*, ={:!contacts (atom
+test-contacts)}=, to have Clidget update the contacts list every time
+the atom changes. (Note the '!' in the keyword).
 
-- ={:!contacts (atom test-contacts)}= - to have Clidget update the
-  contacts list every time the atom changes (note the '!' in the
-  keyword)
-- ={:contacts test-contacts}= - with a value (also useful for testing
-  purposes)
-
-Note that the body of =contact-list-widget= doesn't care whether it
-was passed an atom or a value - all it sees is an immutable value.
+Also, the body of =contact-list-widget= doesn't care whether it was
+passed an atom or a value - all it sees is an immutable value.
 
 The remaining parameters to =contact-list-widget= are yours to pass as
 you see fit - here I'm passing a core.async channel for
 event-handling purposes.
 
+We don't pass the system map into the individual contact widget
+because the display of the contact widget depends on the *value* of
+=contact=, not on a changing atom.
+
 *** Rendering an individual contact
 
 Rendering an individual contact is similar: we accept a contact, and
 an event channel, and return an HTML =<li>= element with the contact's
-(formatted) name, and a delete button. When the delete button is
+(formatted) name.
+
+We also render a delete button and, when the delete button is
 pressed, we put an event on the channel:
 
 #+BEGIN_SRC clojure
-  (defwidget contact-widget [{:keys [contact]} event-ch]
+  (defwidget contact-widget [{} contact event-ch]
     (node
      [:li
       [:span (f/display-name contact)]
-
+  
       (doto (node [:button "[delete]"])
         (d/listen! :click #(a/put! event-ch {:type :delete
                                              :contact contact})))]))
@@ -157,7 +159,7 @@ system state, so we don't need to declare this as a
 
 #+BEGIN_SRC clojure
   (defn new-contact-box [event-ch]
-    (let [name-input (node [:input#new-contact.form-control
+    (let [name-input (node [:input
                             {:type "text"
                              :placeholder "New Contact"
                              :autofocus true}])]
@@ -243,7 +245,7 @@ Here's the completed application, for reference:
   
   (enable-console-print!)
   
-  (defwidget contact-widget [{:keys [contact]} event-ch]
+  (defwidget contact-widget [{} contact event-ch]
     (node
      [:li
       [:span (f/display-name contact)]
@@ -257,7 +259,7 @@ Here's the completed application, for reference:
       [:h1 "Contact List:"]
       [:ul
        (for [contact (sort-by :last contacts)]
-         (contact-widget {:contact contact} event-ch))]]))
+         (contact-widget {} contact event-ch))]]))
   
   (defn new-contact-box [event-ch]
     (let [name-input (node [:input
