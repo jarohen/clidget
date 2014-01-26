@@ -93,9 +93,9 @@ To define the widget, we use =defwidget=, and write *declaratively*
 how a contact list should be rendered.
 
 In the first parameter to =defwidget=, we destructure the system state
-to retrieve the current contacts *value*. We then return a DOM element
-representing the contacts list for this value (mostly, by delegating
-to the individual contact widget).
+to retrieve the current =contacts= *value*. We then return a DOM
+element representing the contacts list for this value (mostly, by
+delegating to the individual contact widget).
 
 #+BEGIN_SRC clojure
   (defwidget contact-list-widget [{:keys [contacts]} event-ch]
