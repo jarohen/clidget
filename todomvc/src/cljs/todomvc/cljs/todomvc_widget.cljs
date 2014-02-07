@@ -31,26 +31,25 @@
                                      :updated-id id})
                   (reset! !editing? false))))))
 
-(defwidget todo-item-widget [{:keys [editing? !editing?]
+(defwidget todo-item-widget [{:keys [editing? !editing? todo]
                               :locals {:!editing? (atom false)}}
-                             {:keys [caption done? id] :as todo}
                              events-ch]
-  (prn "rendering item" id)
-  (node
-   [:li ^:attrs {:class (s/join " " [(when done? "completed")
-                                     (when editing? "editing")])}
-    (if-not editing?
-      [:div.view
-       (doto (node [:input.toggle {:type "checkbox", :checked done?}])
-         (d/listen! :change #(a/put! events-ch {:type :toggle
-                                                :toggled-id id})))
-       (doto (node [:label caption])
-         (d/listen! :dblclick #(reset! !editing? true)))
-       (doto (node [:button.destroy])
-         (d/listen! :click #(a/put! events-ch {:type :delete
-                                               :deleted-id id})))]
-      
-      (edit-input todo !editing? events-ch))]))
+  (let [{:keys [caption done? id]} todo]
+    (node
+     [:li ^:attrs {:class (s/join " " [(when done? "completed")
+                                       (when editing? "editing")])}
+      (if-not editing?
+        [:div.view
+         (doto (node [:input.toggle {:type "checkbox", :checked done?}])
+           (d/listen! :change #(a/put! events-ch {:type :toggle
+                                                  :toggled-id id})))
+         (doto (node [:label caption])
+           (d/listen! :dblclick #(reset! !editing? true)))
+         (doto (node [:button.destroy])
+           (d/listen! :click #(a/put! events-ch {:type :delete
+                                                 :deleted-id id})))]
+        
+        (edit-input todo !editing? events-ch))])))
 
 (defwidget new-todo-widget [{} events-ch]
   (let [input (node [:input#new-todo {:placeholder "What needs to be done?" :type "text"}])]
@@ -68,7 +67,7 @@
   (node
    [:ul#todo-list
     (for [[id todo] (filter (comp (filter-todos todo-filter) val) todos)]
-      (todo-item-widget {} (assoc todo :id id) events-ch))]))
+      (todo-item-widget {:todo (assoc todo :id id)} events-ch))]))
 
 (defwidget stats-widget [{:keys [todos]}]
   (node
