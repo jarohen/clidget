@@ -10,7 +10,7 @@
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
 
-                 [prismatic/dommy "0.1.1"]
+                 [prismatic/dommy "0.1.2"]
 
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/clojurescript "0.0-2138"]
@@ -29,12 +29,14 @@
 
   :frodo/config-resource "todomvc-config.edn"
 
-  :source-paths ["src/clojure"]
+  :source-paths ["src/clojure" "../target/generated/clj"]
 
   :resource-paths ["resources" "target/resources"]
 
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src/cljs"]
+                       {:source-paths ["src/cljs"
+                                       "../target/generated/clj"
+                                       "../target/generated/cljs"]
                         :compiler {:output-to "target/resources/js/todomvc.js"
                                    :output-dir "target/resources/js/"
                                    :optimizations :whitespace

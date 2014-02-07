@@ -3,7 +3,8 @@
             [todomvc.cljs.todomvc-widget :refer [make-todomvc]]
             [todomvc.cljs.todomvc-model :as model]
             [dommy.core :as d])
-  (:require-macros [dommy.macros :refer [sel1]]))
+  (:require-macros [dommy.macros :refer [sel1]]
+                   [cljs.core.async.macros :refer [go]]))
 
 (enable-console-print!)
 
@@ -18,4 +19,22 @@
               events-ch (doto (a/chan)
                           (model/watch-events! !todos))]
 
-          (d/replace-contents! (sel1 :#content) (make-todomvc !todos events-ch)))))
+          (d/replace-contents! (sel1 :#content) (make-todomvc !todos events-ch))
+
+          #_(go
+            (let [els 50]
+              (dotimes [i els]
+                (swap! !todos
+                       assoc i {:caption (str "test" i), :done? false}))
+
+              (let [i els]
+                (swap! !todos
+                       assoc i {:caption (str "test" i), :done? false}))
+
+              (dotimes [i els]
+                (swap! !todos
+                       assoc-in [i :done?] true))
+
+              (dotimes [i els]
+                (swap! !todos
+                       dissoc i)))))))
