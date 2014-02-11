@@ -1,5 +1,10 @@
 (ns clidget.widget
-  #+cljs (:require-macros [clidget.widget :refer [with-widget-cache]]))
+  #+clj (:require [clojure.core :as clj]
+                  [clojure.core.async :as a :refer [go-loop]])
+
+  #+cljs (:require [cljs.core.async :as a])
+  #+cljs (:require-macros [cljs.core.async.macros :refer [go-loop]]
+                          [clidget.widget :refer [with-widget-cache]]))
 
 (def ^:dynamic ^:private *context* nil)
 
@@ -32,13 +37,22 @@
           system
           locals-binding))
 
-(defn add-watches [system keys-binding render-widget-fn]
+(defn add-watches [system keys-binding render-ch]
   (doseq [{:keys [val-key atom-key]} keys-binding]
     (when-let [watched-atom (some->> atom-key
                                      (get system))]
       (add-watch watched-atom (gensym "clidget")
                  (fn [_ _ _ new-value]
-                   (render-widget-fn (assoc system val-key new-value)))))))
+                   (a/put! render-ch (assoc system val-key new-value)))))))
+
+(defn make-render-ch [render-widget!]
+  (let [ch (a/chan (a/sliding-buffer 1))]
+    (go-loop []
+      (when-let [system (a/<! ch)]
+        (render-widget! system)
+        (a/<! (a/timeout 250))
+        (recur)))
+    ch))
 
 (defmacro with-widget-cache [!cache & body]
   `(let [from-cache# @~!cache]
@@ -50,25 +64,26 @@
 (defn re-render-widget [{!parent-widget-cache :!to-cache} widget-key system keys-binding render-widget-fn]
   (let [!widget (atom nil)
         !widget-cache (atom {})
-        render-widget (fn [system]
-                        (doto (with-widget-cache !widget-cache
-                                (render-widget-fn (-> system
-                                                      (merge (resolve-state system keys-binding))
-                                                      (dissoc :clidget/widget-key
-                                                              :clidget/widget-type))))
+        render-widget! (fn [system]
+                         (doto (with-widget-cache !widget-cache
+                                 (render-widget-fn (-> system
+                                                       (merge (resolve-state system keys-binding))
+                                                       (dissoc :clidget/widget-key
+                                                               :clidget/widget-type))))
                           
-                          (cache-widget! !parent-widget-cache widget-key)
+                           (cache-widget! !parent-widget-cache widget-key)
 
-                          (#(when-let [current-widget @!widget]
-                              ;; This is called when an atom that
-                              ;; we're watching changes - our parent
-                              ;; may not have updated.
-                              (.. current-widget -parentNode (replaceChild % current-widget))))
+                           (#(when-let [current-widget @!widget]
+                               ;; This is called when an atom that
+                               ;; we're watching changes - our parent
+                               ;; may not have updated.
+                               (.. current-widget -parentNode (replaceChild % current-widget))))
                           
-                          (->> (reset! !widget))))]
+                           (->> (reset! !widget))))
+        render-ch (make-render-ch render-widget!)]
 
-    (add-watches system keys-binding render-widget)
-    (reset! !widget (render-widget system))))
+    (add-watches system keys-binding render-ch)
+    (reset! !widget (render-widget! system))))
 
 (defn updated-widget [system keys-binding locals-binding render-widget-fn]
   ;; this fn is called whenever a parent-widget asks us to reload
