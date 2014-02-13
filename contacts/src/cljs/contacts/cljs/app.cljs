@@ -9,7 +9,7 @@
 
 (enable-console-print!)
 
-(defwidget contact-widget [{} contact event-ch]
+(defwidget contact-widget [{:keys [contact]} event-ch]
   (node
    [:li
     [:span (f/display-name contact)]
@@ -23,7 +23,7 @@
     [:h1 "Contact List:"]
     [:ul
      (for [contact (sort-by :last contacts)]
-       (contact-widget {} contact event-ch))]]))
+       (contact-widget {:contact contact} event-ch))]]))
 
 (defn new-contact-box [event-ch]
   (let [name-input (node [:input#new-contact.form-control
