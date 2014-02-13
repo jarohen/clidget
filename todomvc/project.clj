@@ -20,7 +20,7 @@
 
                  [gaka "0.3.0"]
 
-                 [jarohen/clidget "0.1.0"]]
+                 [jarohen/clidget "0.2.0-SNAPSHOT"]]
 
   :plugins [[jarohen/lein-frodo "0.2.10"]
             [lein-cljsbuild "1.0.0"]
@@ -29,14 +29,12 @@
 
   :frodo/config-resource "todomvc-config.edn"
 
-  :source-paths ["src/clojure" "../target/generated/clj"]
+  :source-paths ["src/clojure"]
 
   :resource-paths ["resources" "target/resources"]
 
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src/cljs"
-                                       "../target/generated/clj"
-                                       "../target/generated/cljs"]
+                       {:source-paths ["src/cljs"]
                         :compiler {:output-to "target/resources/js/todomvc.js"
                                    :output-dir "target/resources/js/"
                                    :optimizations :whitespace
