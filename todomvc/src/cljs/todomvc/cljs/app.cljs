@@ -40,4 +40,4 @@
 
           (d/replace-contents! (sel1 :#content) (make-todomvc !todos events-ch))
 
-          (run-benchmark! !todos))))
+          #_(run-benchmark! !todos))))
