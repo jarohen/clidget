@@ -8,7 +8,7 @@ UIs through small, composable 'widgets'.*
 Add the following to your =project.clj=
 
 #+BEGIN_SRC clojure
-  [jarohen/clidget "0.1.0"]
+  [jarohen/clidget "0.2.0"]
 #+END_SRC
 
 and the following to your CLJS =:require=:
@@ -16,6 +16,9 @@ and the following to your CLJS =:require=:
 #+BEGIN_SRC clojure
   (:require [clidget.widget :refer [defwidget] :include-macros true])
 #+END_SRC
+
+For the Clidget changelog, including breaking changes, please see [[https://github.com/james-henderson/clidget/tree/master/CHANGES.org][the
+changelog]].
 
 ** Clidget's Rationale:
 
@@ -28,6 +31,11 @@ When writing Clidget, I had the following aims:
 
   Clidget is good at knowing when to re-render widgets, the rest is up
   to you.
+
+  This means that the ease/maintainability/expressiveness of Clidget
+  is not dependent on waiting for new versions of Clidget - if DOM
+  libraries get better or an amazing new library is released, *Clidget
+  users get the benefits immediately!*
 
 - *No Magic* - 'magic' is great when it's a small example ('wow, that's
   magic! How did they do that so concisely?!') but not so great when
@@ -152,7 +160,7 @@ Clidget will:
 
 - look up the value in the system-state map. If it finds a ':counter'
   entry, it will bind the 'counter' variable to the value
-  provided. /This is mostly to be used for testing./
+  provided.
 - If there's no value, it'll look up an atom in the system-state map,
   *prefixed with an exclamation mark* (e.g. for 'counter', it will
   look up ':!counter'). If it finds an atom, it will assume that the
@@ -215,7 +223,7 @@ parameter to =defwidget=. When specifying a local atom, you also
 specify an initial value, as follows:
 
 #+BEGIN_SRC clojure
-  (defwidget todo-item-widget [{:keys [editing? !editing?]
+  (defwidget todo-item-widget [{:keys [editing? !editing? todo]
                                 :locals {:!editing? (atom false)}}
                                ...]
     (node
@@ -240,24 +248,24 @@ but this time it will render the =(node-when-editing ...)= node.
 
 *** Sub-widget keys
 
-Clidget uses the extra parameters (i.e. everything after the first
-parameter) that you provide to a widget to differentiate between
+Clidget uses the extra parameters (i.e. *values* passed in the system
+map) that you provide to a widget to differentiate between
 sub-widgets. This works out fine in most cases - for example, if you
 have a widget that contains a list of widgets, chances are you'll
 provide a widget-unique ID as an extra parameter to the sub-widget, as
 follows:
 
 #+BEGIN_SRC clojure
-  (defwidget todo-item-widget [{:keys [...]}
-                               {:keys [caption id] :as todo}]
-    (node
-     [:li caption]))
+  (defwidget todo-item-widget [{:keys [todo]}]
+    (let [{:keys [caption id]} todo]
+      (node
+       [:li caption])))
   
   (defwidget todo-list-widget [{:keys [todos]}]
     (node
      [:ul
       (for [{:keys [id] :as todo} todos]
-        (todo-item-widget {} todo))]))
+        (todo-item-widget {:todo todo}))]))
 #+END_SRC
 
 The 'id' here in the todo map is enough to differentiate between
@@ -270,7 +278,7 @@ for any given sub-widget) =:clidget/widget-key= key in the state map,
 as shown in the following (very contrived) example:
 
 #+BEGIN_SRC clojure
-  (defwidget child-widget [{:keys [...]} elem]
+  (defwidget child-widget [{:keys [elem]}]
     (node
      [:li ...]))
   
@@ -278,7 +286,8 @@ as shown in the following (very contrived) example:
     (node
      [:ul
       (for [[index elem] (map vector (range) coll)]
-        (child-widget {:clidget/widget-key index} elem))]))
+        (child-widget {:clidget/widget-key index
+                       :elem elem}))]))
 #+END_SRC
 
 Here, we are using the index of the 'element' in the 'collection' as a
