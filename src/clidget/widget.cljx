@@ -50,7 +50,6 @@
     (go-loop []
       (when-let [system (a/<! ch)]
         (render-widget! system)
-        (a/<! (a/timeout 250))
         (recur)))
     ch))
 
