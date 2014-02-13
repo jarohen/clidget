@@ -19,7 +19,7 @@
 
                  [jarohen/frodo-core "0.2.10"]
 
-                 [jarohen/clidget "0.1.0"]
+                 [jarohen/clidget "0.2.0"]
 
                  [gaka "0.3.0"]]
 

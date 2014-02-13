@@ -25,6 +25,11 @@ DOM. It relies on Clojure's vanilla atoms to update the state, but
 does not make any assertions around how users render DOM elements or
 handle events - that choice is yours.
 
+This means that the ease/maintainability/expressiveness of Clidget is
+not dependent on new versions of Clidget - if DOM libraries get better
+or an amazing new library is released, Clidget users get the benefits
+immediately!
+
 ** Use of real DOM elements
 
 Om and Reagent are both based on a virtual DOM, on which they perform
@@ -58,6 +63,23 @@ I am obviously biased; try it for yourself!
 
 ** Performance
 
+*** v0.2.0
+
+*Update*: 0.2.0 includes the batching together of DOM updates, if
+there are multiple updates to the system state within a short period
+of time.
+
+We can do this because =defwidget= is declarative and pure - it takes
+any system map *value* and returns a DOM node *value*, so we can
+ignore all but the most up-to-date system state - we don't need to
+waste time rendering intermediate states.
+
+This means that the performance, measured over a few different
+benchmarks on my machine (details to come) *is now comparable to that
+of Om/Reagent/React*, and *around 20x* faster than v0.1.0.
+
+*** v0.1.0
+
 Clidget will be slower than Om and Reagent, although (even now) not to
 the point of being unusable for the majority of web applications (I
 hope!).
@@ -69,3 +91,4 @@ performance differences.
 
 I'm currently working on making the performance better, but wanted to
 get an initial release out of the door to get some early feedback.
+

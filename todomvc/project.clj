@@ -10,7 +10,7 @@
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
 
-                 [prismatic/dommy "0.1.1"]
+                 [prismatic/dommy "0.1.2"]
 
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/clojurescript "0.0-2138"]
@@ -20,7 +20,7 @@
 
                  [gaka "0.3.0"]
 
-                 [jarohen/clidget "0.1.0"]]
+                 [jarohen/clidget "0.2.0"]]
 
   :plugins [[jarohen/lein-frodo "0.2.10"]
             [lein-cljsbuild "1.0.0"]

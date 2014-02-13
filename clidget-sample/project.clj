@@ -18,7 +18,7 @@
 
                  [jarohen/frodo-core "0.2.10"]
 
-                 [jarohen/clidget "0.1.0-SNAPSHOT"]]
+                 [jarohen/clidget "0.2.0"]]
 
   :plugins [[jarohen/lein-frodo "0.2.10"]
             [lein-cljsbuild "1.0.0"]

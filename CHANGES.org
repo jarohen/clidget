@@ -1,0 +1,44 @@
+* ChangeLog
+
+** 0.2.0
+
+*Significant performance upgrade* (~20x, on my machine, on TodoMVC benchmarks).
+
+Because widgets are pure functions from a system *value* to a DOM
+*value*, we can ignore all but the most up-to-date system state - we
+do not need to render the intermediate states. 
+
+*Breaking change*: 'sub-widget differentiating parameters' now passed in
+system map as values:
+
+v0.1.0:
+#+BEGIN_SRC clojure
+  (defwidget todo-item-widget [{:keys [...]} todo]
+    (let [{:keys [caption id]} todo]
+      (node
+       [:li caption])))
+  
+  (defwidget todo-list-widget [{:keys [todos]}]
+    (node
+     [:ul
+      (for [{:keys [id] :as todo} todos]
+        (todo-item-widget {} todo))]))
+#+END_SRC
+
+v0.2.0:
+#+BEGIN_SRC clojure
+  (defwidget todo-item-widget [{:keys [todo]}]
+    (let [{:keys [caption id]} todo]
+      (node
+       [:li caption])))
+  
+  (defwidget todo-list-widget [{:keys [todos]}]
+    (node
+     [:ul
+      (for [{:keys [id] :as todo} todos]
+        (todo-item-widget {:todo todo}))]))
+#+END_SRC
+
+** 0.1.0
+
+Initial commit
