@@ -9,44 +9,34 @@
 
 (enable-console-print!)
 
-(defwidget counter-widget [{:keys [counter1 counter2]} events-ch]
+(defwidget counter-widget [{:keys [counter]} events-ch]
   (node
    [:div
-    [:h2 "counters are now: " (pr-str [counter1 counter2])]
+    [:h2 "The counter is: " counter]
     [:p
-     (doto (node [:button.btn "Inc counter1"])
-       (d/listen! :click #(a/put! events-ch :inc-1)))]
+     (doto (node [:button.btn "Increment counter"])
+       (d/listen! :click #(a/put! events-ch :inc)))]
     [:p
-     (doto (node [:button.btn "Dec counter2"])
-       (d/listen! :click #(a/put! events-ch :dec-2)))]]))
+     (doto (node [:button.btn "Decrement counter"])
+       (d/listen! :click #(a/put! events-ch :dec)))]]))
 
-(defwidget diff-widget [{:keys [counter1 counter2]}]
-  (node
-   [:p "The difference is: " (js/Math.abs (- counter1 counter2))]))
-
-(defn watch-events! [events-ch !counter1 !counter2]
+(defn watch-events! [events-ch !counter]
   (go-loop []
     (when-let [event (a/<! events-ch)]
       (case event
-        :inc-1 (swap! !counter1 inc)
-        :dec-2 (swap! !counter2 dec))
+        :inc (swap! !counter inc)
+        :dec (swap! !counter dec))
       (recur))))
 
-(set! (.-onload js/window)
+(set! js/window.onload
       (fn []
-        (let [!counter1 (atom 0)
-              !counter2 (atom 999)
+        (let [!counter (atom 0)
               events-ch (doto (a/chan)
-                          (watch-events! !counter1 !counter2))]
+                          (watch-events! !counter))]
 
-          (d/replace-contents! (sel1 :#content)
+          (d/replace-contents! js/document.body
                                (node [:div.container
                                       [:h2 {:style {:margin-top "1em"}}
-                                       (counter-widget {:!counter1 !counter1
-                                                        :!counter2 !counter2}
-                                                       events-ch)]
-                                      [:div {:style {:margin-top "2em"}}
-                                       (diff-widget {:!counter1 !counter1
-                                                     :!counter2 !counter2})]])))))
+                                       (counter-widget {:!counter !counter} events-ch)]])))))
 
 
