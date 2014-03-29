@@ -1,5 +1,5 @@
 (ns contacts.cljs.app
-  (:require [clidget.widget :refer [defwidget] :include-macros true]
+  (:require [clidget.widget :refer-macros [defwidget]]
             [cljs.core.async :as a]
             [contacts.cljx.formatter :as f]
             [dommy.core :as d]

@@ -3,7 +3,7 @@
             [cljs.core.async :as a]
             [dommy.core :as d]
             clojure.browser.repl
-            [clidget.widget :refer [defwidget] :include-macros true])
+            [clidget.widget :refer-macros [defwidget]])
   (:require-macros [dommy.macros :refer [node sel1]]
                    [cljs.core.async.macros :refer [go-loop]]))
 

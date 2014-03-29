@@ -14,7 +14,7 @@ Add the following to your =project.clj=
 and the following to your CLJS =:require=:
 
 #+BEGIN_SRC clojure
-  (:require [clidget.widget :refer [defwidget] :include-macros true])
+  (:require [clidget.widget :refer-macros [defwidget]])
 #+END_SRC
 
 For the Clidget changelog, including breaking changes, please see [[https://github.com/james-henderson/clidget/tree/master/CHANGES.org][the
